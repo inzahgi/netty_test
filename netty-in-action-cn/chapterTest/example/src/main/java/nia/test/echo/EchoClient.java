@@ -1,9 +1,7 @@
 package nia.test.echo;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -36,10 +34,19 @@ public class EchoClient {
                     .option(ChannelOption.TCP_NODELAY,true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-
+                        public void initChannel(SocketChannel socketChannel) throws Exception {
+                            ChannelPipeline p = socketChannel.pipeline();
+                            if(sslCtx != null){
+                                p.addLast(sslCtx.newHandler(socketChannel.alloc(), HOST, PORT));
+                            }
+                            p.addLast(new EchoClientHandler());
                         }
-                    })
+                    });
+
+            ChannelFuture f = b.connect(HOST, PORT).sync();
+            f.channel().closeFuture().sync();
+        }finally {
+            group.shutdownGracefully();
         }
 
     }
