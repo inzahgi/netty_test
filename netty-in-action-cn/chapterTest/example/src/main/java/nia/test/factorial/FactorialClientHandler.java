@@ -1,5 +1,7 @@
 package nia.test.factorial;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -34,18 +36,54 @@ public class FactorialClientHandler extends SimpleChannelInboundHandler<BigInteg
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
+        this.ctx = ctx;
+        sendNumbers();
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, BigInteger bigInteger) throws Exception {
-
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, final BigInteger num) throws Exception {
+        receivedMessages++;
+        if(receivedMessages == FactorialClient.COUNT){
+            ctx.channel().close().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    boolean offserd = answear.offer(num);
+                    assert offserd;
+                }
+            });
+        }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+        cause.printStackTrace();
+        ctx.close();
     }
+
+    private void sendNumbers(){
+        ChannelFuture future = null;
+        for(int i = 0; i<4096&&next<=FactorialClient.COUNT; i++){
+            future = ctx.write(Integer.valueOf(next));
+            next++;
+        }
+        if(next <= FactorialClient.COUNT){
+            assert future != null;
+            future.addListener(numberSender);
+        }
+        ctx.flush();
+    }
+
+    private final ChannelFutureListener numberSender = new ChannelFutureListener() {
+        @Override
+        public void operationComplete(ChannelFuture channelFuture) throws Exception {
+            if(channelFuture.isSuccess()){
+                sendNumbers();
+            }else {
+                channelFuture.cause().printStackTrace();
+                channelFuture.channel();
+            }
+        }
+    };
 
 
 }

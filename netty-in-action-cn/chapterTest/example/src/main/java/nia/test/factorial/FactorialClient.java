@@ -1,6 +1,7 @@
 package nia.test.factorial;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -31,8 +32,15 @@ public class FactorialClient {
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
-                    .handler();
+                    .handler(new FactorialClientInitializer(sslCtx));
 
+            ChannelFuture f = b.connect(HOST, PORT).sync();
+
+            FactorialClientHandler handler=(FactorialClientHandler)f.channel().pipeline().last();
+            System.err.format("Factorial of %,d is: %,d", COUNT, handler.getFactorial());
+
+        }finally {
+            group.shutdownGracefully();
         }
 
     }
