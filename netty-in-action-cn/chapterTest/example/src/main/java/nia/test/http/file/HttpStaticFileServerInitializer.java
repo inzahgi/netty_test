@@ -1,5 +1,6 @@
 package nia.test.http.file;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
 
@@ -9,5 +10,8 @@ public class HttpStaticFileServerInitializer extends SimpleChannelInboundHandler
     public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
     public static final int HTTP_CACHE_SECONDS = 60;
 
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 
+    }
 }
