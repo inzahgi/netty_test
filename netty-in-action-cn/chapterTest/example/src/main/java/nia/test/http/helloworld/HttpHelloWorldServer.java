@@ -21,7 +21,7 @@ public class HttpHelloWorldServer {
     public static void main(String[] args) throws  Exception{
         final SslContext sslCtx;
         if(SSL){
-            SelfSignedCertificate ssc  new SelfSignedCertificate();
+            SelfSignedCertificate ssc = new SelfSignedCertificate();
             sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
         }else{
             sslCtx = null;
