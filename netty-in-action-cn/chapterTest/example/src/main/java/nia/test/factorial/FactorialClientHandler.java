@@ -9,46 +9,48 @@ import java.math.BigInteger;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
 
 public class FactorialClientHandler extends SimpleChannelInboundHandler<BigInteger> {
+
     private ChannelHandlerContext ctx;
-    private int receivedMessages;
+    private int receivedMessage = 1;
     private int next = 1;
-    final BlockingQueue<BigInteger> answear = new LinkedBlockingQueue<BigInteger>();
+    final BlockingQueue<BigInteger> answear = new LinkedTransferQueue<>();
 
     public BigInteger getFactorial(){
-        boolean interrupted = false;
-        try{
-            for(;;){
-                try {
-
-                    return answear.take();
-                }catch (InterruptedException ingore){
-                    interrupted = true;
+        for(;;){
+            boolean isInterrputed = false;
+            try{
+                return answear.take();
+            }catch (java.lang.InterruptedException e){
+                isInterrputed = true;
+            }finally {
+                if(isInterrputed){
+                    Thread.currentThread().interrupt();
                 }
             }
-        } finally {
-            if(interrupted){
-                Thread.currentThread().interrupt();
-            }
+
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.ctx = ctx;
-        sendNumbers();
+        sendNums();
     }
 
+
+
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, final BigInteger num) throws Exception {
-        receivedMessages++;
-        if(receivedMessages == FactorialClient.COUNT){
-            ctx.channel().close().addListener(new ChannelFutureListener() {
+    protected void channelRead0(ChannelHandlerContext ctx, final BigInteger msg) throws Exception {
+        receivedMessage++;
+        if(receivedMessage == FactorialClient.COUNT){
+            ctx.close().addListener(new ChannelFutureListener() {
                 @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    boolean offserd = answear.offer(num);
-                    assert offserd;
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    boolean offerd = answear.offer(msg);
+                    assert offerd;
                 }
             });
         }
@@ -60,30 +62,29 @@ public class FactorialClientHandler extends SimpleChannelInboundHandler<BigInteg
         ctx.close();
     }
 
-    private void sendNumbers(){
+    private void sendNums(){
         ChannelFuture future = null;
-        for(int i = 0; i<4096&&next<=FactorialClient.COUNT; i++){
+        for (int i = 0; i < 4096 && next < FactorialClient.COUNT; i++) {
             future = ctx.write(Integer.valueOf(next));
             next++;
         }
-        if(next <= FactorialClient.COUNT){
+        if(next < FactorialClient.COUNT){
             assert future != null;
-            future.addListener(numberSender);
+            future.addListener(numSender);
         }
         ctx.flush();
     }
 
-    private final ChannelFutureListener numberSender = new ChannelFutureListener() {
+    private ChannelFutureListener numSender = new ChannelFutureListener() {
         @Override
-        public void operationComplete(ChannelFuture channelFuture) throws Exception {
-            if(channelFuture.isSuccess()){
-                sendNumbers();
+        public void operationComplete(ChannelFuture future) throws Exception {
+            if(future.isSuccess()){
+                sendNums();
             }else {
-                channelFuture.cause().printStackTrace();
-                channelFuture.channel();
+                future.cause().printStackTrace();
+                future.channel().close();
             }
         }
     };
-
 
 }

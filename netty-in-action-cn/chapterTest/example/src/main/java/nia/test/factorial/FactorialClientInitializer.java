@@ -16,18 +16,18 @@ public class FactorialClientInitializer  extends ChannelInitializer<SocketChanne
 
     @Override
     public void initChannel(SocketChannel socketChannel) throws Exception {
-        ChannelPipeline pipeline = socketChannel.pipeline();
+        ChannelPipeline cp = socketChannel.pipeline();
+
         if(sslCtx != null){
-            pipeline.addLast(sslCtx.newHandler(socketChannel.alloc(), FactorialClient.HOST, FactorialClient.PORT));
+            cp.addLast(sslCtx.newHandler(socketChannel.alloc(), FactorialClient.HOST, FactorialClient.PORT));
         }
 
-        pipeline.addLast(ZlibCodecFactory.newZlibEncoder(ZlibWrapper.GZIP));
-        pipeline.addLast(ZlibCodecFactory.newZlibDecoder(ZlibWrapper.GZIP));
+        cp.addLast(ZlibCodecFactory.newZlibEncoder(ZlibWrapper.GZIP));
+        cp.addLast(ZlibCodecFactory.newZlibDecoder(ZlibWrapper.GZIP));
 
-        pipeline.addLast(new BigIntegerDecoder());
-        pipeline.addLast(new NumberEncoder());
+        cp.addLast(new BigIntegerDecoder());
+        cp.addLast(new NumberEncoder());
 
-        pipeline.addLast(new FactorialClientHandler());
-
+        cp.addLast(new FactorialClientHandler());
     }
 }

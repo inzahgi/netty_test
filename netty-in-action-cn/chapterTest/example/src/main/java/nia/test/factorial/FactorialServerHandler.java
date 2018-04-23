@@ -7,20 +7,20 @@ import java.math.BigInteger;
 
 public class FactorialServerHandler extends SimpleChannelInboundHandler<BigInteger> {
 
-    private BigInteger lastMultiplier = new BigInteger("1");
-    private BigInteger factorial = new BigInteger("1");
-
+    private BigInteger lastData = new BigInteger("1");
+    private BigInteger factorialNum = new BigInteger("1");
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, BigInteger msg) throws Exception {
-        lastMultiplier = msg;
-        factorial = factorial.multiply(msg);
-        ctx.writeAndFlush(factorial);
+        lastData = msg;
+        factorialNum = factorialNum.multiply(msg);
+        ctx.writeAndFlush(factorialNum);
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.err.printf("Factorial of %d is %d\n", lastMultiplier, factorial);
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.format("the last data is lastData = %s,  factorialNum = %s",
+                lastData.toString(), factorialNum.toString());
     }
 
     @Override

@@ -9,21 +9,20 @@ import java.math.BigInteger;
 public class NumberEncoder extends MessageToByteEncoder<Number>{
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, Number msg, ByteBuf out) throws Exception {
+    public void encode(ChannelHandlerContext ctx, Number msg, ByteBuf out) throws Exception {
         BigInteger v;
         if(msg instanceof BigInteger){
-            v = (BigInteger)msg;
-        }else{
+            v = (BigInteger) msg;
+        }else {
             v = new BigInteger(String.valueOf(msg));
         }
 
         byte[] data = v.toByteArray();
-        int dataLength = data.length;
+        int dataLen = data.length;
 
         out.writeByte((byte)'F');
-        out.writeInt(dataLength);
+        out.writeInt(dataLen);
         out.writeBytes(data);
-
 
     }
 }

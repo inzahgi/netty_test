@@ -10,24 +10,26 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
+import javax.sound.sampled.Port;
+
 public class FactorialServer {
 
-    static final boolean SSL = System.getProperty("ssl") != null;
+    static final boolean hasSSL = System.getProperty("ssl") != null;
     static final int PORT = Integer.parseInt(System.getProperty("port", "8322"));
 
     public static void main(String[] args) throws Exception{
         final SslContext sslCtx;
-        if(SSL){
+        if (hasSSL){
             SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx = SslContextBuilder
-                    .forServer(ssc.certificate(), ssc.privateKey())
+            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey())
                     .build();
-        }else{
+        }else {
             sslCtx = null;
         }
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup  = new NioEventLoopGroup();
+
         try{
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
@@ -35,9 +37,7 @@ public class FactorialServer {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new FactorialServerInitializer(sslCtx));
 
-            b.bind(PORT).sync().channel().closeFuture().sync();
-
-
+            b.bind(PORT).channel().closeFuture().sync();
         }finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
