@@ -11,6 +11,10 @@ public class WebSocketIndexPageHandler extends SimpleChannelInboundHandler<FullH
 
     private final String websocketPath;
 
+    public WebSocketIndexPageHandler(String websocketPath){
+        this.websocketPath=websocketPath;
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         if(!req.decoderResult().isSuccess()){
