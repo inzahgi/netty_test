@@ -127,8 +127,8 @@ public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObj
                 }catch (HttpPostRequestDecoder.ErrorDataDecoderException e1){
                     e1.printStackTrace();
                     responseContent.append(e1.getMessage());
-                    writeResponse(ctx.channel);
-                    ctx.channel.cloe();
+//                    writeResponse(ctx.channel);
+//                    ctx.channel.cloe();
                     return;
                 }
                 responseContent.append('o');
@@ -268,7 +268,7 @@ public class HttpUploadServerHandler extends SimpleChannelInboundHandler<HttpObj
         }
         if(!cookies.isEmpty()){
             for (Cookie cookie : cookies){
-                response.headers().add(HttpHeaderNames.SET_COOKIE, ServerCookieDecoder.STRICT.encode(cookie));
+                //response.headers().add(HttpHeaderNames.SET_COOKIE, ServerCookieDecoder.STRICT.encode(cookie));
             }
         }
 

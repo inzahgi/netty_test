@@ -95,7 +95,7 @@ public class HttpUploadClient {
                 return;
             }
 
-            formpostmultipart(b, host, uriFile, factory, headers, bodyList);
+            //formpostmultipart(b, host, uriFile, factory, headers, bodyList);
         } finally {
             group.shutdownGracefully();
 
