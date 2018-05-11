@@ -23,6 +23,7 @@ public class EchoClient {
                         public void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline cp = socketChannel.pipeline();
                             cp.addLast(new EchoClientHandler());
+
                         }
                     });
 
