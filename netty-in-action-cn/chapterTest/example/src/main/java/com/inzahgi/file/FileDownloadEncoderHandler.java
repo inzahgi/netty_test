@@ -29,10 +29,14 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
 
     public ByteBuf encodeFileStartInfo(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(256);
-        buf.writeInt(e.getHeadType())
-                .writeBytes(e.getFileName().getBytes())
+        buf.writeInt(e.getHeadType());
+        byte[] nameArray = e.getFileName().getBytes();
+        buf.writeInt(nameArray.length)
+                .writeBytes(nameArray)
                 .writeLong(e.getFileLength())
-                .writeLong(e.getMaxFileBlockLength())
+                .writeLong(e.getMaxFileBlockLength());
+        byte[] md5Array = e.getMd5().getBytes(CharsetUtil.UTF_8);
+        buf.writeInt(md5Array.length)
                 .writeBytes(e.getMd5().getBytes(CharsetUtil.UTF_8));
         return buf;
     }
@@ -43,6 +47,7 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
                 .writeInt(e.getFileBlockCurNo())
                 .writeLong(e.getBlockStartPos())
                 .writeLong(e.getBlockEndPos())
+                .writeInt(e.getFileBlock().length)
                 .writeBytes(e.getFileBlock());
         return buf;
     }

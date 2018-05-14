@@ -14,8 +14,26 @@ public class FileDownloadDecoderHandler extends MessageToMessageDecoder<Object> 
         ByteBuf buf = (ByteBuf)o;
         FileDownloadEntity e = new FileDownloadEntity();
         e.setHeadType(buf.readInt());
-        switch ()
+        switch (e.getHeadType()){
+            case 1: break;
+            case 2: break;
+            case 3: break;
+            default: return;
+        }
 
 
     }
+
+    public FileDownloadEntity decodeFileStartInfo(FileDownloadEntity e, ByteBuf buf){
+        //e.setFileName(buf.read);
+    }
+
+    public FileDownloadEntity decodeFileBlock(FileDownloadEntity e, ByteBuf buf){
+
+    }
+
+    public FileDownloadEntity decodeFileEndInfo(FileDownloadEntity e, ByteBuf buf){
+
+    }
+
 }
