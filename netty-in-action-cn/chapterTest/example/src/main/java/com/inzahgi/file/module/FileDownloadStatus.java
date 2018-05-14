@@ -1,20 +1,24 @@
-package com.inzahgi.file;
+package com.inzahgi.file.module;
 
 public class FileDownloadStatus {
     private String fileName;
     private String filePath;
     private long fileLength;
+    private long maxFileBlockLength;
     private String md5;
     private int fileBlockTotal;
     private String[] blockMd5;
 
-    public FileDownloadStatus(String fileName, String filePath, long fileLength, String md5, int fileBlockTotal) {
+    public FileDownloadStatus(String fileName, String filePath, long fileLength, long maxFileBlockLength, String md5) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileLength = fileLength;
+        this.maxFileBlockLength = maxFileBlockLength;
         this.md5 = md5;
-        this.fileBlockTotal = fileBlockTotal;
-        blockMd5 = new String[fileBlockTotal];
+        this.fileBlockTotal = (int)(fileLength/maxFileBlockLength) +
+                (fileLength%maxFileBlockLength == 0 ? 0 : 1);
+        this.blockMd5 = new String[fileBlockTotal];
+
     }
 
     public String getFileName() {
