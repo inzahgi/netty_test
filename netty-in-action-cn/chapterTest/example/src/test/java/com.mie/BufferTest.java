@@ -45,6 +45,9 @@ public class BufferTest {
         System.out.println("dBuf " + dBuf);
         System.out.println("dBuf " + dBuf.toString(CharsetUtil.UTF_8));
         System.out.println("dBuf " + dBuf);
+        dBuf.readByte();
+        System.out.println("dBuf " + dBuf);
+
 
     }
 

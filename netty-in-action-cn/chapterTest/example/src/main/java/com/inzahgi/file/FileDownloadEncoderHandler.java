@@ -34,7 +34,8 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
         buf.writeInt(nameArray.length)
                 .writeBytes(nameArray)
                 .writeLong(e.getFileLength())
-                .writeLong(e.getMaxFileBlockLength());
+                .writeLong(e.getMaxFileBlockLength())
+                .writeInt(e.getFileBlockTotal());
         byte[] md5Array = e.getMd5().getBytes(CharsetUtil.UTF_8);
         buf.writeInt(md5Array.length)
                 .writeBytes(e.getMd5().getBytes(CharsetUtil.UTF_8));
