@@ -29,6 +29,8 @@ public class FileServerMain {
                             ChannelPipeline cp = socketChannel.pipeline();
                             cp.addLast(new LengthFieldBasedFrameDecoder(1024, 0, 2));
                             cp.addLast(new LengthFieldPrepender(4));
+                            cp.addLast(new FileDownloadDecoderHandler());
+                            cp.addLast(new FileDownloadEncoderHandler());
                             cp.addLast(new FileServerHandler());
                         }
                     });
