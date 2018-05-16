@@ -9,7 +9,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.CharsetUtil;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,14 +54,39 @@ public class FileClientHandler extends SimpleChannelInboundHandler<FileDownloadE
 
         File f = new File("d:" + File.separator + "test.txt") ; // 指定要操作的文件
         try {
+            initDownloadFile(f, e.getFileLength());
             rdf = new RandomAccessFile(f, "rw");// 读写模式，如果文件不存在，会自动创建
-        }catch (java.io.FileNotFoundException e1){
+        }catch (Exception e1){
             e1.printStackTrace();
         }
     }
 
+    private boolean initDownloadFile(File file, long fileLen) throws Exception{
+        FileOutputStream outSTr = new FileOutputStream(file);
+        BufferedOutputStream Buff = new BufferedOutputStream(outSTr);
+        long begin0 = System.currentTimeMillis();
+        byte[] ar = new byte[1024];
+        int count = (int)(fileLen/1024);
+        int lastByte = (int)(fileLen%1024);
+        for (int i = 0; i < count; i++) {
+            Buff.write(ar);
+        }
+        if(lastByte != 0){
+            Buff.write(new byte[lastByte]);
+        }
+        Buff.flush();
+        Buff.close();
+        long end0 = System.currentTimeMillis();
+        System.out.println("BufferedOutputStream执行耗时:" + (end0 - begin0) + " 毫秒");
+        return true;
+    }
     private void writeFile(FileDownloadEntity e){
-        buf.writeBytes(e.getFileBlock());
+        //buf.writeBytes(e.getFileBlock());
+        try {
+            rdf.write(e.getFileBlock(), (int) e.getBlockStartPos(), e.getFileBlock().length);
+        }catch (java.io.IOException e1){
+            e1.printStackTrace();
+        }
 
     }
 }
