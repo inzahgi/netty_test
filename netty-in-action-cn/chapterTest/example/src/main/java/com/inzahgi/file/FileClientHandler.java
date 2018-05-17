@@ -13,6 +13,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,10 +81,51 @@ public class FileClientHandler extends SimpleChannelInboundHandler<FileDownloadE
         System.out.println("BufferedOutputStream执行耗时:" + (end0 - begin0) + " 毫秒");
         return true;
     }
-    private void writeFile(FileDownloadEntity e){
-        //buf.writeBytes(e.getFileBlock());
+
+    private void getFileContent(FileDownloadEntity e){
+        fileStatus.getMap().put(e.getFileBlockCurNo(), e);
+        boolean writeFlag = false;
+        if(fileStatus.getMap().size() > 10){
+            int i = 0;
+            int lastBlockNum=-1;
+            for(Map.Entry<Integer, FileDownloadEntity> entry : fileStatus.getMap().entrySet()){
+                int b = entry.getValue().getFileBlockCurNo();
+                if(b - lastBlockNum == 1 ){
+                    i++;
+                }
+                lastBlockNum = b;
+            }
+            if(i >= 10){
+                writeFlag = true;
+            }
+        }
+
+        if(writeFlag){
+            writeFile(fileStatus);
+        }
+
+    }
+    private void writeFile(FileDownloadStatus fds){
+        int startKey = 0;
+        int i = 0;
+        int lastBlockNum=-10;
+        for(Map.Entry<Integer, FileDownloadEntity> entry : fileStatus.getMap().entrySet()){
+            int b = entry.getValue().getFileBlockCurNo();
+            if(b - lastBlockNum != 1 && i < 10){
+                startKey = entry.getKey();
+            }else {
+                i++;
+            }
+            lastBlockNum = b;
+
+        }
         try {
-            rdf.write(e.getFileBlock(), (int) e.getBlockStartPos(), e.getFileBlock().length);
+            for (int j = startKey; j < startKey+i ; j++) {
+                Map<Integer, FileDownloadEntity> map = fileStatus.getMap();
+                FileDownloadEntity e = map.get(j);
+            }
+            //rdf.write(e.getFileBlock(), (int) e.getBlockStartPos(), e.getFileBlock().length);
+
         }catch (java.io.IOException e1){
             e1.printStackTrace();
         }

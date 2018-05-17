@@ -1,5 +1,8 @@
 package com.inzahgi.file.module;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 public class FileDownloadStatus {
     private String fileName;
     private String filePath;
@@ -8,6 +11,8 @@ public class FileDownloadStatus {
     private String md5;
     private int fileBlockTotal;
     private String[] blockMd5;
+    private Map<Integer, FileDownloadEntity> map;
+    //private int Continuity = 0;
 
     public FileDownloadStatus(String fileName, String filePath, long fileLength, long maxFileBlockLength, String md5) {
         this.fileName = fileName;
@@ -18,6 +23,7 @@ public class FileDownloadStatus {
         this.fileBlockTotal = (int)(fileLength/maxFileBlockLength) +
                 (fileLength%maxFileBlockLength == 0 ? 0 : 1);
         this.blockMd5 = new String[fileBlockTotal];
+        map = new TreeMap<>();
 
     }
 
@@ -59,5 +65,30 @@ public class FileDownloadStatus {
 
     public void setFileBlockTotal(int fileBlockTotal) {
         this.fileBlockTotal = fileBlockTotal;
+    }
+
+    public long getMaxFileBlockLength() {
+        return maxFileBlockLength;
+    }
+
+    public void setMaxFileBlockLength(long maxFileBlockLength) {
+        this.maxFileBlockLength = maxFileBlockLength;
+    }
+
+    public String[] getBlockMd5() {
+        return blockMd5;
+    }
+
+    public void setBlockMd5(String[] blockMd5) {
+        this.blockMd5 = blockMd5;
+    }
+
+
+    public Map<Integer, FileDownloadEntity> getMap() {
+        return map;
+    }
+
+    public void setMap(Map<Integer, FileDownloadEntity> map) {
+        this.map = map;
     }
 }
