@@ -17,12 +17,12 @@ public class FileDownloadDecoderHandler extends MessageToMessageDecoder<Object> 
         FileDownloadEntity e = new FileDownloadEntity();
         e.setHeadType(buf.readInt());
         switch (e.getHeadType()){
-            case 1: break;
-            case 2: break;
-            case 3: break;
+            case 1: decodeFileStartInfo(e, buf);break;
+            case 2: decodeFileBlock(e, buf);break;
+            case 3: decodeFileEndInfo(e, buf);break;
             default: return;
         }
-
+        list.add(e);
 
     }
 
