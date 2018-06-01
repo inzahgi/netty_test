@@ -12,7 +12,8 @@ public class FileDownloadStatus {
     private int fileBlockTotal;
     private String[] blockMd5;
     private Map<Integer, FileDownloadEntity> map;
-    //private int Continuity = 0;
+    private int startIndex = 0;
+    private int endIndex = 0;
 
     public FileDownloadStatus(String fileName, String filePath, long fileLength, long maxFileBlockLength, String md5) {
         this.fileName = fileName;
@@ -90,5 +91,21 @@ public class FileDownloadStatus {
 
     public void setMap(Map<Integer, FileDownloadEntity> map) {
         this.map = map;
+    }
+
+    public int getStartIndex() {
+        return startIndex;
+    }
+
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
+    }
+
+    public int getEndIndex() {
+        return endIndex;
+    }
+
+    public void setEndIndex(int endIndex) {
+        this.endIndex = endIndex;
     }
 }
