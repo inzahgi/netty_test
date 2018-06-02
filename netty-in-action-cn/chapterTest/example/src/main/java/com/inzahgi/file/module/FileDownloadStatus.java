@@ -12,8 +12,8 @@ public class FileDownloadStatus {
     private int fileBlockTotal;
     private String[] blockMd5;
     private Map<Integer, FileDownloadEntity> map;
-    private int startIndex = 0;
-    private int endIndex = 0;
+    private int startIndex = -1;
+    private int endIndex = -1;
 
     public FileDownloadStatus(String fileName, String filePath, long fileLength, long maxFileBlockLength, String md5) {
         this.fileName = fileName;
