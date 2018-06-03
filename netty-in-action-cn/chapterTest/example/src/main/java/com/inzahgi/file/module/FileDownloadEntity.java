@@ -31,7 +31,7 @@ public class FileDownloadEntity {
     private String endInfo = "send finish!!";
 
     public enum HEAD_TYPE{
-        FILE_INFO(1), FILE_BLOCK(2), FILE_END(3);
+        FIND_FILE(0), FILE_INFO(1), FILE_BLOCK(2), FILE_END(3);
         private int type;
         private HEAD_TYPE(int type){
             this.type = type;

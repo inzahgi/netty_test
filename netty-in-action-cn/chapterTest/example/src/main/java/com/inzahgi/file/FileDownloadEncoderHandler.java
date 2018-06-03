@@ -17,6 +17,7 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
         if(e != null ){
             ByteBuf res;
             switch (e.getHeadType()){
+                case 0: res = encodeFindFileName(e);break;
                 case 1: res = encodeFileStartInfo(e);break;
                 case 2: res = encodeFileBlock(e);break;
                 case 3: res = encodeFileEndInfo(e);break;
@@ -25,6 +26,15 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
             }
             list.add(res);
         }
+    }
+
+    public ByteBuf encodeFindFileName(FileDownloadEntity e){
+        ByteBuf buf = Unpooled.buffer(256);
+        byte[] nameArray = e.getFileName().getBytes();
+        buf.writeInt(nameArray.length)
+                .writeBytes(nameArray);
+        return buf;
+
     }
 
     public ByteBuf encodeFileStartInfo(FileDownloadEntity e){

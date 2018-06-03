@@ -25,10 +25,13 @@ public class FileClientHandler extends SimpleChannelInboundHandler<FileDownloadE
     private RandomAccessFile raf = null ;
 
 
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(Unpooled.copiedBuffer(fileName, CharsetUtil.UTF_8));
+        FileDownloadEntity e = new FileDownloadEntity();
+        e.setFileName(fileName);
+        e.setHeadType(FileDownloadEntity.HEAD_TYPE.FIND_FILE.getType());
+        ctx.writeAndFlush(e);
+        //ctx.writeAndFlush(Unpooled.copiedBuffer(fileName, CharsetUtil.UTF_8));
     }
 
     @Override

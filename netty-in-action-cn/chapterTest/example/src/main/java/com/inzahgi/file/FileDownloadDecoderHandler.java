@@ -17,6 +17,7 @@ public class FileDownloadDecoderHandler extends MessageToMessageDecoder<Object> 
         FileDownloadEntity e = new FileDownloadEntity();
         e.setHeadType(buf.readInt());
         switch (e.getHeadType()){
+            case 0: decodeFindFile(e, buf);break;
             case 1: decodeFileStartInfo(e, buf);break;
             case 2: decodeFileBlock(e, buf);break;
             case 3: decodeFileEndInfo(e, buf);break;
@@ -24,6 +25,15 @@ public class FileDownloadDecoderHandler extends MessageToMessageDecoder<Object> 
         }
         list.add(e);
 
+    }
+
+    public FileDownloadEntity decodeFindFile(FileDownloadEntity e, ByteBuf buf){
+        int nameLen = buf.readInt();
+        byte[] nameArray = new byte[nameLen];
+        buf.readBytes(nameArray);
+        e.setFileName(new String(nameArray));
+
+        return e;
     }
 
     public FileDownloadEntity decodeFileStartInfo(FileDownloadEntity e, ByteBuf buf){
