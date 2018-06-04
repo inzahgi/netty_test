@@ -14,7 +14,7 @@ public class FileDownloadEntity {
 
     private long fileLength;
 
-    private long maxFileBlockLength;
+    private long maxFileBlockLength = 1024*1024*2;
 
     private int fileBlockTotal;
 
