@@ -1,12 +1,16 @@
 package com.inzahgi.file;
 
+
 import com.inzahgi.file.module.FileDownloadEntity;
 import com.inzahgi.file.module.FileDownloadStatus;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.digest.Md5Crypt;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -62,6 +66,12 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FileDownloadE
         if(f == null || f.exists() == false){
             return null;
         }
+        try {
+            String md5 = DigestUtils.md5Hex(new FileInputStream(f));
+        }catch (java.io.IOException e0){
+            e0.printStackTrace();
+        }
+
 
     }
 
