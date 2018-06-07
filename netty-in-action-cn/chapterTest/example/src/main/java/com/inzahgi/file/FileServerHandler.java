@@ -29,8 +29,8 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FileDownloadE
         FileDownloadEntity responseEntity = new FileDownloadEntity();
         switch (e.getHeadType()){
             case 0: getFileInfo(e);break;
-            case 1: getFileBlock(e)break;
-            case 2: getFileEndInfo()break;
+            case 1: getFileBlock(e);break;
+            case 2: getFileEndInfo();break;
             case 3: break;
             default:return;
         }
