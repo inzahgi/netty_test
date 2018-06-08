@@ -17,31 +17,34 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
         if(e != null ){
             ByteBuf res;
             switch (e.getHeadType()){
-                case 0: res = encodeFindFileName(e);break;
-                case 1: res = encodeFileStartInfo(e);break;
-                case 2: res = encodeFileBlock(e);break;
-                case 3: res = encodeFileEndInfo(e);break;
-                default:
-                    return;
+                case 0: res = encodeRequestStart(e);break;
+                case 1: res = encodeResponseStart(e);break;
+                case 2: res = encodeRequestBlock(e);break;
+                case 3: res = encodeResponseBlock(e);break;
+                case 4: res = encodeRequestEnd(e);break;
+                case 5:res = encodeResponseEnd(e);break;
+                default: return;
             }
             list.add(res);
         }
     }
 
-    public ByteBuf encodeFindFileName(FileDownloadEntity e){
+    public ByteBuf encodeRequestStart(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(256);
         byte[] nameArray = e.getFileName().getBytes();
-        buf.writeInt(nameArray.length)
+        buf.writeInt(e.getHeadType())
+                .writeInt(nameArray.length)
                 .writeBytes(nameArray);
         return buf;
 
     }
 
-    public ByteBuf encodeFileStartInfo(FileDownloadEntity e){
+    public ByteBuf encodeResponseStart(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(256);
         buf.writeInt(e.getHeadType());
         byte[] nameArray = e.getFileName().getBytes();
-        buf.writeInt(nameArray.length)
+        buf.writeInt(e.getHeadType())
+                .writeInt(nameArray.length)
                 .writeBytes(nameArray)
                 .writeLong(e.getFileLength())
                 .writeLong(e.getMaxFileBlockLength())
@@ -52,7 +55,17 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
         return buf;
     }
 
-    public ByteBuf encodeFileBlock(FileDownloadEntity e){
+    public ByteBuf encodeRequestBlock(FileDownloadEntity e){
+        ByteBuf buf = Unpooled.buffer(256);
+        byte[] nameArray = e.getFileName().getBytes();
+        buf.writeInt(e.getHeadType())
+                .writeInt(nameArray.length)
+                .writeBytes(nameArray)
+                .writeInt(e.getFileBlockCurNo());
+        return buf;
+    }
+
+    public ByteBuf encodeResponseBlock(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(1024+128);
         buf.writeInt(e.getHeadType())
                 .writeInt(e.getFileBlockCurNo())
@@ -63,7 +76,17 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
         return buf;
     }
 
-    public ByteBuf encodeFileEndInfo(FileDownloadEntity e){
+    public ByteBuf encodeRequestEnd(FileDownloadEntity e){
+        ByteBuf buf = Unpooled.buffer(128);
+        byte[] nameArray = e.getFileName().getBytes();
+        buf.writeInt(e.getHeadType())
+                .writeInt(nameArray.length)
+                .writeBytes(nameArray);
+        return buf;
+
+    }
+
+    public ByteBuf encodeResponseEnd(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(128);
         buf.writeInt(e.getHeadType())
                 .writeBytes(e.getEndInfo().getBytes(CharsetUtil.UTF_8));
