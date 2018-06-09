@@ -31,73 +31,57 @@ public class FileDownloadDecoderHandler extends MessageToMessageDecoder<Object> 
     }
 
     public FileDownloadEntity decodeRequestStart(ByteBuf buf){
-        FileDownloadEntity e = new FileDownloadEntity();
-        int nameLen = buf.readInt();
-        byte[] nameArray = new byte[nameLen];
-        buf.readBytes(nameArray);
-        e.setFileName(new String(nameArray));
-        return e;
+        return parseFileName(buf);
     }
 
     public FileDownloadEntity decodeResponseStart(ByteBuf buf){
-        FileDownloadEntity e = new FileDownloadEntity();
-        int nameLen = buf.readInt();
-        byte[] nameArray = new byte[nameLen];
-        buf.readBytes(nameArray);
-        e.setFileName(new String(nameArray));
-        long fileLen = buf.readLong();
-        e.setFileLength(fileLen);
-        long maxFileBlockLen = buf.readLong();
-        e.setMaxFileBlockLength(maxFileBlockLen);
-        int fileBlockTotal = buf.readInt();
-        e.setFileBlockTotal(fileBlockTotal);
-        int md5Len = buf.readInt();
-        byte[] md5Array = new byte[md5Len];
-        buf.readBytes(md5Array);
-        e.setMd5(new String(md5Array));
+        FileDownloadEntity e = parseFileName(buf);
+        e.setFileLength(buf.readLong());
+        e.setMaxFileBlockLength(buf.readLong());
+        e.setFileBlockTotal(buf.readInt());
+        byte[] md5Bytes = new byte[buf.readInt()];
+        buf.readBytes(md5Bytes);
+        e.setMd5(new String(md5Bytes));
         return e;
     }
 
     public FileDownloadEntity decodeRequestBlock(ByteBuf buf){
-        FileDownloadEntity e = new FileDownloadEntity();
-        int nameLen = buf.readInt();
-        byte[] nameArray = new byte[nameLen];
-        buf.readBytes(nameArray);
-        e.setFileName(new String(nameArray));
-        int fileBlockCurNo = buf.readInt();
-        e.setFileBlockCurNo(fileBlockCurNo);
+        FileDownloadEntity e = parseFileName(buf);
+        e.setFileBlockCurNo(buf.readInt());
         return e;
     }
 
     public FileDownloadEntity decodeResponseBlock(ByteBuf buf){
-        FileDownloadEntity e = new FileDownloadEntity();
-        int fileBlockNo = buf.readInt();
-        e.setFileBlockCurNo(fileBlockNo);
-        long start = buf.readLong();
-        long end = buf.readLong();
-        e.setBlockStartPos(start);
-        e.setBlockEndPos(end);
-        int fileBlockLen = buf.readInt();
-        byte[] fileBlock = new byte[fileBlockLen];
+        FileDownloadEntity e = parseFileName(buf);
+        e.setFileBlockCurNo(buf.readInt());
+        e.setBlockStartPos(buf.readLong());
+        e.setBlockEndPos( buf.readLong());
+        byte[] fileBlock = new byte[buf.readInt()];
+        buf.readBytes(fileBlock);
         e.setFileBlock(fileBlock);
-
         return e;
     }
 
     public FileDownloadEntity decodeRequestEnd(ByteBuf buf){
-        FileDownloadEntity e = new FileDownloadEntity();
-        int nameLen = buf.readInt();
-        byte[] nameArray = new byte[nameLen];
-        buf.readBytes(nameArray);
-        e.setFileName(new String(nameArray));
-        return e;
-
+        return parseFileName(buf);
     }
 
     public FileDownloadEntity decodeResponseEnd(ByteBuf buf){
-        FileDownloadEntity e = new FileDownloadEntity();
+        FileDownloadEntity e = parseFileName(buf);
         e.setEndInfo(buf.toString(CharsetUtil.UTF_8));
         return e;
     }
 
+    private FileDownloadEntity parseFileName(ByteBuf buf){
+        FileDownloadEntity e = new FileDownloadEntity();
+        int nameLen = buf.readInt();
+        byte[] nameBytes = new byte[nameLen];
+        buf.readBytes(nameBytes);
+        e.setFileName(new String(nameBytes));
+        int filepathLen = buf.readInt();
+        byte[] filePathBytes = new byte[filepathLen];
+        buf.readBytes(filePathBytes);
+        e.setFilePath(new String(filePathBytes));
+        return e;
+    }
 }

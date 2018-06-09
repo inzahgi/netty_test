@@ -1,5 +1,6 @@
 package com.inzahgi.file;
 
+import com.inzahgi.file.module.ConstantStatus;
 import com.inzahgi.file.module.FileDownloadEntity;
 import com.inzahgi.file.module.FileDownloadStatus;
 import io.netty.buffer.ByteBuf;
@@ -29,19 +30,31 @@ public class FileClientHandler extends SimpleChannelInboundHandler<FileDownloadE
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         FileDownloadEntity e = new FileDownloadEntity();
         e.setFileName(fileName);
-        e.setHeadType(FileDownloadEntity.HEAD_TYPE.FIND_FILE.getType());
+        e.setHeadType(ConstantStatus.REQUEST_HEAD_TYPE.requestInfo);
         ctx.writeAndFlush(e);
         //ctx.writeAndFlush(Unpooled.copiedBuffer(fileName, CharsetUtil.UTF_8));
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, FileDownloadEntity e) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, FileDownloadEntity e) throws Exception {
+        FileDownloadEntity requestFde = new FileDownloadEntity();
+        requestFde.setFileName(e.getFileName());
+        requestFde.setFilePath(e.getFileName());
         switch (e.getHeadType()){
-                case 1: initDownload(e);break;
-                case 2: saveFileBlock(e);break;
-                case 3: finishDownload(e);break;
+                case ConstantStatus.RESPON_HEAD_TYPE.responeInfo:
+                    initDownload(e);
+                    requestFde.setFileBlockCurNo(0);
+                    break;
+                case ConstantStatus.RESPON_HEAD_TYPE.responseBlock:
+                    saveFileBlock(e);
+                    requestFde.setFileBlockCurNo(e.getFileBlockCurNo());
+                    break;
+                case ConstantStatus.RESPON_HEAD_TYPE.responseEnd:
+                    finishDownload(e);
+                    break;
                 default: return;
-            }
+            };
+        ctx.writeAndFlush(e);
     }
 
     @Override
@@ -52,7 +65,7 @@ public class FileClientHandler extends SimpleChannelInboundHandler<FileDownloadE
 
     public void initDownload(FileDownloadEntity e){
         try {
-            raf = new RandomAccessFile(e.getFileName(), "rw");
+            raf = new RandomAccessFile(e.getFilePath(), "rw");
             fds = new FileDownloadStatus(e.getFileName(), filePath, e.getFileLength(),
                     e.getMaxFileBlockLength(),e.getMd5());
         }catch (java.io.FileNotFoundException e0){

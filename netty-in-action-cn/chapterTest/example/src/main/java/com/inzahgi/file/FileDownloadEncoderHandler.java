@@ -2,6 +2,7 @@ package com.inzahgi.file;
 
 import com.inzahgi.file.module.FileDownloadEntity;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
@@ -31,21 +32,13 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
 
     public ByteBuf encodeRequestStart(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(256);
-        byte[] nameArray = e.getFileName().getBytes();
-        buf.writeInt(e.getHeadType())
-                .writeInt(nameArray.length)
-                .writeBytes(nameArray);
-        return buf;
+        return encodeFileNameAndPath(buf, e);
 
     }
 
     public ByteBuf encodeResponseStart(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(256);
-        buf.writeInt(e.getHeadType());
-        byte[] nameArray = e.getFileName().getBytes();
-        buf.writeInt(e.getHeadType())
-                .writeInt(nameArray.length)
-                .writeBytes(nameArray)
+        encodeFileNameAndPath(buf, e)
                 .writeLong(e.getFileLength())
                 .writeLong(e.getMaxFileBlockLength())
                 .writeInt(e.getFileBlockTotal());
@@ -57,17 +50,14 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
 
     public ByteBuf encodeRequestBlock(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(256);
-        byte[] nameArray = e.getFileName().getBytes();
-        buf.writeInt(e.getHeadType())
-                .writeInt(nameArray.length)
-                .writeBytes(nameArray)
+        encodeFileNameAndPath(buf, e)
                 .writeInt(e.getFileBlockCurNo());
         return buf;
     }
 
     public ByteBuf encodeResponseBlock(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(1024+128);
-        buf.writeInt(e.getHeadType())
+        encodeFileNameAndPath(buf, e)
                 .writeInt(e.getFileBlockCurNo())
                 .writeLong(e.getBlockStartPos())
                 .writeLong(e.getBlockEndPos())
@@ -78,18 +68,25 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
 
     public ByteBuf encodeRequestEnd(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(128);
-        byte[] nameArray = e.getFileName().getBytes();
-        buf.writeInt(e.getHeadType())
-                .writeInt(nameArray.length)
-                .writeBytes(nameArray);
-        return buf;
+        return encodeFileNameAndPath(buf, e);
 
     }
 
     public ByteBuf encodeResponseEnd(FileDownloadEntity e){
         ByteBuf buf = Unpooled.buffer(128);
-        buf.writeInt(e.getHeadType())
+        encodeFileNameAndPath(buf, e)
                 .writeBytes(e.getEndInfo().getBytes(CharsetUtil.UTF_8));
+        return buf;
+    }
+
+    private ByteBuf encodeFileNameAndPath(ByteBuf buf, FileDownloadEntity e){
+        byte[] nameBytes = e.getFileName().getBytes();
+        byte[] filePathBytes = e.getFilePath().getBytes();
+        buf.writeInt(e.getHeadType())
+                .writeInt(nameBytes.length)
+                .writeBytes(nameBytes)
+                .writeInt(filePathBytes.length)
+                .writeBytes(filePathBytes);
         return buf;
     }
 }

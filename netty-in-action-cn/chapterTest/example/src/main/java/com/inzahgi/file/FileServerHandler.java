@@ -24,6 +24,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FileDownloadE
     private int total = 0;
 
 
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FileDownloadEntity e) throws Exception {
         FileDownloadEntity responseEntity = new FileDownloadEntity();
@@ -31,7 +32,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FileDownloadE
             case 0: getFileInfo(e);break;
             case 1: getFileBlock(e);break;
             case 2: getFileEndInfo();break;
-            case 3: break;
             default:return;
         }
         channelHandlerContext.writeAndFlush(responseEntity);
@@ -90,6 +90,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FileDownloadE
         FileDownloadEntity resEntity = new FileDownloadEntity();
         resEntity.setHeadType(FileDownloadEntity.HEAD_TYPE.FILE_END.getType());
         resEntity.setEndInfo("download it!");
+        return resEntity;
     }
 
     private String getFileMd5(String filePath){
