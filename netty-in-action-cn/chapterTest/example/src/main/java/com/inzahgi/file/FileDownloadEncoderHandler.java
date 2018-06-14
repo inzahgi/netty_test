@@ -1,5 +1,6 @@
 package com.inzahgi.file;
 
+import com.inzahgi.file.module.ConstantStatus;
 import com.inzahgi.file.module.FileDownloadEntity;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -18,12 +19,12 @@ public class FileDownloadEncoderHandler extends MessageToMessageEncoder<FileDown
         if(e != null ){
             ByteBuf res;
             switch (e.getHeadType()){
-                case 0: res = encodeRequestStart(e);break;
-                case 1: res = encodeResponseStart(e);break;
-                case 2: res = encodeRequestBlock(e);break;
-                case 3: res = encodeResponseBlock(e);break;
-                case 4: res = encodeRequestEnd(e);break;
-                case 5:res = encodeResponseEnd(e);break;
+                case ConstantStatus.REQUEST_HEAD_TYPE.requestInfo : res = encodeRequestStart(e);break;
+                case ConstantStatus.RESPON_HEAD_TYPE.responeInfo: res = encodeResponseStart(e);break;
+                case ConstantStatus.REQUEST_HEAD_TYPE.requestBlock: res = encodeRequestBlock(e);break;
+                case ConstantStatus.RESPON_HEAD_TYPE.responseBlock: res = encodeResponseBlock(e);break;
+                case ConstantStatus.REQUEST_HEAD_TYPE.requestEnd: res = encodeRequestEnd(e);break;
+                case ConstantStatus.RESPON_HEAD_TYPE.responseEnd:res = encodeResponseEnd(e);break;
                 default: return;
             }
             list.add(res);
